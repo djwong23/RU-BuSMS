@@ -19,14 +19,24 @@ app = Flask(__name__)
 def sms_reply():
     body = request.values.get('Body', None)
     resp = MessagingResponse()
+    currentDT = datetime.datetime.now()
+   
 
-    starting = "" +body[0: body.find(" to ", 0, len(body))]
-    end = "" + body[body.find(" to ", 0, len(body))+4:len(body)]
-                    
+    if body.find(":", 0, len(body)) == -1 :
+        starting = "" +body[0: body.find(" to ", 0, len(body))]
+        end = "" + body[body.find(" to ", 0, len(body))+4:len(body)]
+    else :
+        currentDT = datetime.time(int(body[body.find(":", 0, len(body))-2:body.find(":", 0, len(body))]), int(body[body.find(":", 0, len(body))+1:len(body)]), 0)
+        starting = "" + body[0: body.find(" to ", 0, len(body))]
+        end = "" + body[body.find(" to ", 0, len(body))+4:body.find(":", 0, len(body))-2]
+
+        print(starting)
+        print(end)
+        print(currentDT)
     directions = location_finder(starting) + " to " + location_finder(end)
     print(directions)
 
-    currentDT = datetime.datetime.now()
+    
     
 
     if "livi to buschh" in directions.lower() or "buschh to livi" in directions.lower() or "buscha to livi" in directions.lower() or "livi to buscha" in directions.lower():
@@ -46,9 +56,9 @@ def sms_reply():
             elif "buschh to college ave" in directions.lower() or "college ave to buschh" in directions.lower():
                 resp.message("Take H!")            
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour ==2 and currentDT.minute <30) :
-            resp.message("Take H")
+                resp.message("Take H")
         else :
-            resp.message("No Bus Route!")
+                resp.message("No Bus Route!")
     elif "college ave to cook" in directions.lower() or "cook to college ave" in directions.lower() or "college ave to douglass" in directions.lower() or "douglass to college ave" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 21 :
             resp.message("Take EE or F!")
