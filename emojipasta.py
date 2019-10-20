@@ -16,7 +16,9 @@ app = Flask(__name__)
 # request = requests.get('https://maps.googleapis.com/maps/api/js?key=AIzaSyAAwuExTdfzuBbRtB1RufGzcUBzmV4YYIY&callback=initMap')
 
 
-def sms_reply():
+
+def main():
+    #body = input("Where to where? ")
     body = request.values.get('Body', None)
     resp = MessagingResponse()
     currentDT = datetime.datetime.now()
@@ -33,56 +35,185 @@ def sms_reply():
         print(starting)
         print(end)
         print(currentDT)
-    directions = location_finder(starting) + " to " + location_finder(end)
+    starting, startLat, startLng = location_finder(starting + "rutgers")
+    end, endLat, endLng = location_finder(end + "rutgers")
+    directions = starting + " to " + end
     print(directions)
+    LXstops = {'Livi Plaza' : {'lat' : "40.525088", 'lng' : "-74.438634"}, 
+            'Livi Student Center' : {'lat' : "40.524063", 'lng' : "-74.436528"}, 
+            'the Quads' : {'lat' : "40.520077", 'lng' : "-74.433289"},
+            'Scott Hall' : {'lat' : "40.499219", 'lng' : "-74.447935"},
+            'College Ave Student Center' : {'lat' : "40.503521", 'lng' : "-74.45235"},
+            'SAC' : {'lat' : "40.504134", 'lng' : "-74.449271"}}
+    Bstops = {'Livi Plaza' : {'lat' : "40.525088", 'lng' : "-74.438634"}
+                , 'Livi Student Center' : {'lat' : "40.524063", 'lng' : "-74.436528"}
+                , 'Quads' : {'lat' : "40.520077", 'lng' : "-74.433289"}
+                , 'Werb Side' : {'lat' : "40.518650", 'lng' : "-74.461499"}
+                , 'Hill Center' : {'lat' : "40.521917", 'lng' : "-74.463237"}
+                , 'Science Building' : {'lat' : "40.523908", 'lng' : "-74.464264"}
+                , 'Library of Science' : {'lat' : "40.526185" , 'lng' : "-74.465880"}
+                , 'Busch Suites' : {'lat' : "40.525963" , 'lng' : "-74.459045"}
+                , 'Busch Student Center' :  {'lat' : "40.523788" , 'lng' :  "-74.458201"}}
+    Hstops = {'Scott Hall' : {'lat' : "40.499219", 'lng' : "-74.447935"},
+            'College Ave Student Center' : {'lat' : "40.503521", 'lng' : "-74.45235"},
+            'SAC' : {'lat' : "40.504134", 'lng' : "-74.449271"},
+            'Werb Main Entrance' : {'lat' : "40.518745", 'lng' : "-74.459769"},
+            'Buell Apartments' : {'lat': "40.521724", 'lng' : "-74.456752"},
+            'Busch Student Center' :  {'lat' : "40.523788" , 'lng' :  "-74.458201"},
+            'Davidson Hall' : {'lat' : "40.525963" , 'lng' : "-74.459045"},
+            'Library of Science' : {'lat' : "40.526185" , 'lng' : "-74.465880"},
+            'ARC Buildings' : {'lat' : "40.523698" , 'lng' : "-74.464918"},
+            'Hill Center' : {'lat' : "40.521917", 'lng' : "-74.463237"},
+            }
+            
+    Astops = {'Scott Hall' : {'lat' : "40.499219", 'lng' : "-74.447935"},
+            'College Ave Student Center' : {'lat' : "40.503521", 'lng' : "-74.45235"},
+            'SAC' : {'lat' : "40.504134", 'lng' : "-74.449271"},
+            'Werb Main Entrance' : {'lat' : "40.518745", 'lng' : "-74.459769"},
+            'Buell Apartments' : {'lat': "40.521724", 'lng' : "-74.456752"},
+            'Busch Student Center' :  {'lat' : "40.523788" , 'lng' :  "-74.458201"},
+            'Busch Suites' : {'lat' : "40.525963" , 'lng' : "-74.459045"},
+            'Library of Science' : {'lat' : "40.526185" , 'lng' : "-74.465880"},
+            'Science Building' : {'lat' : "40.523698" , 'lng' : "-74.464918"},
+            'Hill Center' : {'lat' : "40.521917", 'lng' : "-74.463237"},
+            }
 
-    
-    
+    url = "https://maps.googleapis.com/maps/api/distancematrix/json?"
+    key = "AIzaSyAAwuExTdfzuBbRtB1RufGzcUBzmV4YYIY"
+    best = ""
+    if (starting == "livi" and end == "college ave") :
+        best = "Livi Student Center"
+        minDist = 9999999
+        for stop in LXstops :
+            print (stop)
+            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + LXstops[stop]['lat'] + "," + LXstops[stop]['lng'] + "&key=" + key)
+            r = r.json()
+            dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+    elif (starting == "college ave" and end == "livi") :
+        best = "College Ave Student Center"
+        minDist = 9999999
+        for stop in LXstops :
+            print (stop)
+            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + LXstops[stop]['lat'] + "," + LXstops[stop]['lng'] + "&key=" + key)
+            r = r.json()
+            dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+    elif ((starting == "buscha" or starting == "buschh") and end == "livi") :
+        best = "Student Center"
+        minDist = 9999999
+        for stop in Bstops :
+            print (stop)
+            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Bstops[stop]['lat'] + "," + Bstops[stop]['lng'] + "&key=" + key)
+            r = r.json()
+            dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+    elif (starting == "livi" and (end == "buscha" or end == "buschh")) :
+        best = "Livi Student Center"
+        minDist = 9999999
+        for stop in Bstops :
+            print (stop)
+            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Bstops[stop]['lat'] + "," + Bstops[stop]['lng'] + "&key=" + key)
+            r = r.json()
+            dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+    elif (starting == "college ave" and (end == "buscha" or end == "buschh")) :
+        best = "College Ave Student Center"
+        minDist = 9999999
+        if (end == "buscha") :
+            for stop in Astops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Astops[stop]['lat'] + "," + Astops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+        elif (end == "buschh") :
+            for stop in Hstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Hstops[stop]['lat'] + "," + Hstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+    elif ((starting == "buschh" or starting == "buscha") and end == "college ave") :
+        best = "Busch Student Center"
+        minDist = 9999999
+        if (starting == "buscha") :
+            for stop in Astops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Astops[stop]['lat'] + "," + Astops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+        elif (starting == "buschh") :
+            for stop in Hstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Hstops[stop]['lat'] + "," + Hstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+    print ("The closest bus stop is " + best)
+    bestStop = "The closest bus stop is " + best + "!"
 
     if "livi to buschh" in directions.lower() or "buschh to livi" in directions.lower() or "buscha to livi" in directions.lower() or "livi to buscha" in directions.lower():
         if currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <20):
-            resp.message("Take B!")
+            resp.message("Take B! " + bestStop)
         else :
             resp.message("No Bus Route!")
     elif "college ave to livi" in directions.lower() or "livi to college ave" in directions.lower():
         if currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15) :
-            resp.message("Take LX!")
+            resp.message("Take LX! " + bestStop)
         else :
             resp.message("No Bus Route!")
     elif "buscha to college ave" in directions.lower() or "college ave to buscha" in directions.lower() or "buschh to college ave" in directions.lower() or "college ave to buschh" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 21 :
             if "buscha to college ave" in directions.lower() or "college ave to buscha" in directions.lower():
-                resp.message("Take A!")
+                resp.message("Take A! " + bestStop)
             elif "buschh to college ave" in directions.lower() or "college ave to buschh" in directions.lower():
-                resp.message("Take H!")            
+                resp.message("Take H! " + bestStop)            
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour ==2 and currentDT.minute <30) :
-                resp.message("Take H")
+                resp.message("Take H " + bestStop)
         else :
                 resp.message("No Bus Route!")
     elif "college ave to cook" in directions.lower() or "cook to college ave" in directions.lower() or "college ave to douglass" in directions.lower() or "douglass to college ave" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 21 :
-            resp.message("Take EE or F!")
+            resp.message("Take EE or F! " + bestStop)
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute < 15) :
-            resp.message("Take EE!")
+            resp.message("Take EE! " + bestStop)
         else :
             resp.message("No Bus Route!")
     elif "livi to cook" in directions.lower() or "cook to livi" in directions.lower() or "livi to douglass" in directions.lower() or "douglass to livi" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 23 :
-            resp.message("Take REXL!")
+            resp.message("Take REXL! " + bestStop)
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15):
-            resp.message("Take an LX and then an EE!")
+            resp.message("Take an LX and then an EE! " + bestStop)
         else :
             resp.message("No Bus Route!")
     elif "buscha to cook" in directions.lower() or "cook to buscha" in directions.lower() or "cook to buschh" in directions.lower() or "buschh to cook" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 23 :
-            resp.message("Take REXB!")
+            resp.message("Take REXB! " + bestStop)
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15):
-            resp.message("Take an H and then an EE!")
+            resp.message("Take an H and then an EE! " + bestStop)
         else :
             resp.message("No Bus Route!")
     else:
         resp.message("No Bus Route!")
-    return str(resp)
+    print (str(resp))
 
 def location_finder(a_string) :
     # enter your api key here 
@@ -129,20 +260,8 @@ def location_finder(a_string) :
         campus = 'buschh'
     else :
         campus = 'livi'
-    return campus
+    return campus, z['lat'], z['lng']
 
 if __name__ == "__main__":
-    app.run(debug =True)
-
-
-
-
-
-
-
-
-
-
-
-
-
+   app.run(debug =True)
+   #main()
