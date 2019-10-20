@@ -106,7 +106,7 @@ def main():
 
 
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?"
-    key = "AIzaSyAAwuExTdfzuBbRtB1RufGzcUBzmV4YYIY"
+    key = ""
     best = ""
     if ((starting == "livi" and end == "college ave") or (starting == "college ave" and end == "livi")) :
         best = "Livi Student Center"
