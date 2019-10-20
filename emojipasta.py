@@ -77,11 +77,38 @@ def main():
             'Science Building' : {'lat' : "40.523698" , 'lng' : "-74.464918"},
             'Hill Center' : {'lat' : "40.521917", 'lng' : "-74.463237"},
             }
+    Fstops = {'College Hall' : {'lat' : "40.485638", 'lng' : "-74.437418" },
+            'Red Oak Lane': {'lat' : "40.483104", 'lng' : "-74.437426" },
+            'Lipman Hall': { 'lat' : "40.481417", 'lng' : "-74.436096"},
+            'Food Science':{ 'lat' : "40.478938", 'lng' : "-74.435928"},
+            'Biel Road': {'lat' : "40.480023", 'lng' : "-74.432549"},
+            'Henderson': {'lat' : "40.481173", 'lng' : "-74.429139"},
+            'Katzenbach': { 'lat' : "40.483018", 'lng' : "-74.431567"},
+            'Gibbons': {'lat' : "40.485289", 'lng' : "-74.431976" },
+            'Scott Hall' : {'lat' : "40.499219", 'lng' : "-74.447935"},
+            'College Ave Student Center' : {'lat' : "40.503521", 'lng' : "-74.45235"},
+            'SAC' : {'lat' : "40.504134", 'lng' : "-74.449271"}
+            }
+    REXBstops = {'College Hall' : {'lat' : "40.485638", 'lng' :"-74.437418" },
+            'Red Oak Lane': {'lat' : "40.483104", 'lng' : "-74.437426" },
+            'Lipman Hall': { 'lat' : "40.481417", 'lng' : "-74.436096"},
+            'ARC Buildings' : {'lat' : "40.523698" , 'lng' : "-74.464918"},
+            'Hill Center' : {'lat' : "40.521917", 'lng' : "-74.463237"},
+            }
+    REXLstops = {'College Hall' : {'lat' : "40.485638", 'lng' : "-74.437418" },
+            'Red Oak Lane': {'lat' : "40.483104", 'lng' : "-74.437426" },
+            'Lipman Hall': { 'lat' : "40.481417", 'lng' : "-74.436096"},
+            'Livi Plaza' : {'lat' : "40.525088", 'lng' : "-74.438634"}, 
+            'Livi Student Center' : {'lat' : "40.524063", 'lng' : "-74.436528"},
+            }
+            
+            
+
 
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?"
     key = "AIzaSyAAwuExTdfzuBbRtB1RufGzcUBzmV4YYIY"
     best = ""
-    if (starting == "livi" and end == "college ave") :
+    if ((starting == "livi" and end == "college ave") or (starting == "college ave" and end == "livi")) :
         best = "Livi Student Center"
         minDist = 9999999
         for stop in LXstops :
@@ -92,19 +119,8 @@ def main():
             if dist < minDist :
                 best = stop
                 minDist = dist
-    elif (starting == "college ave" and end == "livi") :
-        best = "College Ave Student Center"
-        minDist = 9999999
-        for stop in LXstops :
-            print (stop)
-            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + LXstops[stop]['lat'] + "," + LXstops[stop]['lng'] + "&key=" + key)
-            r = r.json()
-            dist = r['rows'][0]['elements'][0]['distance']['value']
-            if dist < minDist :
-                best = stop
-                minDist = dist
-    elif ((starting == "buscha" or starting == "buschh") and end == "livi") :
-        best = "Student Center"
+    elif (((starting == "buscha" or starting == "buschh") and end == "livi") or (starting == "livi" and (end == "buscha" or end == "buschh"))) :
+        best = "Busch Student Center"
         minDist = 9999999
         for stop in Bstops :
             print (stop)
@@ -114,18 +130,7 @@ def main():
             if dist < minDist :
                 best = stop
                 minDist = dist
-    elif (starting == "livi" and (end == "buscha" or end == "buschh")) :
-        best = "Livi Student Center"
-        minDist = 9999999
-        for stop in Bstops :
-            print (stop)
-            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Bstops[stop]['lat'] + "," + Bstops[stop]['lng'] + "&key=" + key)
-            r = r.json()
-            dist = r['rows'][0]['elements'][0]['distance']['value']
-            if dist < minDist :
-                best = stop
-                minDist = dist
-    elif (starting == "college ave" and (end == "buscha" or end == "buschh")) :
+    elif ((starting == "college ave" and (end == "buscha" or end == "buschh")) or ((starting == "buschh" or starting == "buscha") and end == "college ave")) :
         best = "College Ave Student Center"
         minDist = 9999999
         if (end == "buscha") :
@@ -146,27 +151,107 @@ def main():
                 if dist < minDist :
                     best = stop
                     minDist = dist
-    elif ((starting == "buschh" or starting == "buscha") and end == "college ave") :
-        best = "Busch Student Center"
+    elif ((starting == "cook" and end == "college ave") or (starting == "college ave" and end =="cook")) :
+        best = "College Ave Student Center"
         minDist = 9999999
-        if (starting == "buscha") :
-            for stop in Astops :
+        for stop in Fstops :
+            print (stop)
+            r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Fstops[stop]['lat'] + "," + Fstops[stop]['lng'] + "&key=" + key)
+            r = r.json()
+            dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+    elif (starting == "cook" and end == "livi")  :
+        best = "Livingston Student Center"
+        minDist = 9999999
+        if currentDT.hour > 7 and currentDT.hour < 23 :
+            for stop in REXLstops :
                 print (stop)
-                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Astops[stop]['lat'] + "," + Astops[stop]['lng'] + "&key=" + key)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + REXLstops[stop]['lat'] + "," + REXLstops[stop]['lng'] + "&key=" + key)
                 r = r.json()
                 dist = r['rows'][0]['elements'][0]['distance']['value']
                 if dist < minDist :
                     best = stop
                     minDist = dist
-        elif (starting == "buschh") :
+        else :
+            for stop in Fstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Fstops[stop]['lat'] + "," + Fstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+    elif (starting == "livi" and end == "cook") :
+        best = "Livingston Student Center"
+        minDist = 9999999
+        if currentDT.hour > 7 and currentDT.hour < 23 :
+            for stop in REXLstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + REXLstops[stop]['lat'] + "," + REXLstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+        else :
+            for stop in LXstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + LXstops[stop]['lat'] + "," + LXstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+            
+    elif ( starting == "busch" and end == "cook") :
+        best = "Busch Student Center"
+        minDist = 9999999
+        if currentDT.hour > 7 and currentDT.hour < 23 :
+            for stop in REXBstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + REXBstops[stop]['lat'] + "," + REXBstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+        else :
             for stop in Hstops :
                 print (stop)
                 r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Hstops[stop]['lat'] + "," + Hstops[stop]['lng'] + "&key=" + key)
                 r = r.json()
                 dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+    elif (starting == "cook" and end == "busch") :
+        best = "Red Oak Lane"
+        minDist = 9999999
+        if currentDT.hour > 7 and currentDT.hour < 23 :
+            for stop in REXBstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + REXBstops[stop]['lat'] + "," + REXBstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
                 if dist < minDist :
                     best = stop
                     minDist = dist
+        else :
+            for stop in Fstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Fstops[stop]['lat'] + "," + Fstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+            if dist < minDist :
+                best = stop
+                minDist = dist
+
+
+    if((currentDT.hour > 2 and currentDT.hour < 6) or (currentDT.hour ==2 and currentDT.minute > 30)):
+        best = "None :("
+
     print ("The closest bus stop is " + best)
     bestStop = "The closest bus stop is " + best + "!"
 
@@ -190,30 +275,44 @@ def main():
                 resp.message("Take H " + bestStop)
         else :
                 resp.message("No Bus Route!")
-    elif "college ave to cook" in directions.lower() or "cook to college ave" in directions.lower() or "college ave to douglass" in directions.lower() or "douglass to college ave" in directions.lower():
+    elif "college ave to cook" in directions.lower() or "cook to college ave" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 21 :
             resp.message("Take EE or F! " + bestStop)
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute < 15) :
             resp.message("Take EE! " + bestStop)
         else :
             resp.message("No Bus Route!")
-    elif "livi to cook" in directions.lower() or "cook to livi" in directions.lower() or "livi to douglass" in directions.lower() or "douglass to livi" in directions.lower():
+    elif "livi to cook" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 23 :
             resp.message("Take REXL! " + bestStop)
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15):
             resp.message("Take an LX and then an EE! " + bestStop)
         else :
             resp.message("No Bus Route!")
-    elif "buscha to cook" in directions.lower() or "cook to buscha" in directions.lower() or "cook to buschh" in directions.lower() or "buschh to cook" in directions.lower():
+    elif "cook to livi" in directions.lower() :
+        if currentDT.hour > 7 and currentDT.hour < 23 :
+            resp.message("Take REXL! " + bestStop)
+        elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15):
+            resp.message("Take an EE and then an LX! " + bestStop)
+        else :
+            resp.message("No Bus Route!")
+    elif "buscha to cook" in directions.lower()or "buschh to cook" in directions.lower():
         if currentDT.hour > 7 and currentDT.hour < 23 :
             resp.message("Take REXB! " + bestStop)
         elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15):
             resp.message("Take an H and then an EE! " + bestStop)
         else :
             resp.message("No Bus Route!")
+    elif "cook to buscha" in directions.lower() or "cook to buschh" in directions.lower() :
+        if currentDT.hour > 7 and currentDT.hour < 23 :
+            resp.message("Take REXB! " + bestStop)
+        elif currentDT.hour > 6 or currentDT.hour < 2 or (currentDT.hour == 2 and currentDT.minute <15):
+            resp.message("Take an EE and then an H! " + bestStop)
+        else :
+            resp.message("No Bus Route!")
     else:
         resp.message("No Bus Route!")
-    print (str(resp))
+    return (str(resp))
 
 def location_finder(a_string) :
     # enter your api key here 
@@ -265,3 +364,14 @@ def location_finder(a_string) :
 if __name__ == "__main__":
    app.run(debug =True)
    #main()
+
+
+
+
+
+
+
+
+
+
+
