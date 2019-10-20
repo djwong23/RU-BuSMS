@@ -35,8 +35,8 @@ def main():
         print(starting)
         print(end)
         print(currentDT)
-    starting, startLat, startLng = location_finder(starting + "rutgers")
-    end, endLat, endLng = location_finder(end + "rutgers")
+    starting, startLat, startLng = location_finder(starting)
+    end, endLat, endLng = location_finder(end)
     directions = starting + " to " + end
     print(directions)
     LXstops = {'Livi Plaza' : {'lat' : "40.525088", 'lng' : "-74.438634"}, 
@@ -130,7 +130,7 @@ def main():
             if dist < minDist :
                 best = stop
                 minDist = dist
-    elif ((starting == "college ave" and (end == "buscha" or end == "buschh")) or ((starting == "buschh" or starting == "buscha") and end == "college ave")) :
+    elif (starting == "college ave" and (end == "buscha" or end == "buschh")):
         best = "College Ave Student Center"
         minDist = 9999999
         if (end == "buscha") :
@@ -143,6 +143,27 @@ def main():
                     best = stop
                     minDist = dist
         elif (end == "buschh") :
+            for stop in Hstops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Hstops[stop]['lat'] + "," + Hstops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+    elif ((starting == "buschh" or starting == "buscha") and end == "college ave") :
+        best = "Busch Student Center"
+        minDist = 9999999
+        if (starting == "buscha") :
+            for stop in Astops :
+                print (stop)
+                r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Astops[stop]['lat'] + "," + Astops[stop]['lng'] + "&key=" + key)
+                r = r.json()
+                dist = r['rows'][0]['elements'][0]['distance']['value']
+                if dist < minDist :
+                    best = stop
+                    minDist = dist
+        elif (starting == "buschh") :
             for stop in Hstops :
                 print (stop)
                 r = requests.get(url + "origins=" + str(startLat) + "," + str(startLng) + "&destinations=" + Hstops[stop]['lat'] + "," + Hstops[stop]['lng'] + "&key=" + key)
@@ -336,8 +357,7 @@ def location_finder(a_string) :
     # store the value of result key in variable y 
     y = x['candidates'] 
     print ('\n')
-    print (y)
-    print (y[0]['geometry']['location'])
+
     z = (y[0]['geometry']['location'])
     pt = Point(z['lat'], z['lng']) 
     
